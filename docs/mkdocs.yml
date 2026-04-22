@@ -1,0 +1,40 @@
+site_name: Документация разработчика - Электронная запись в салон красоты
+
+use_directory_urls: false
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - toc.integrate
+  palette:
+    - scheme: default
+      primary: blue
+      accent: indigo
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          paths:
+            - ..
+          options:
+            docstring_style: google
+
+nav:
+  - Главная: index.md
+  - Архитектура: architecture.md
+  - Модели данных: models.md
+  - User Stories: user-stories.md
+  - Запуск проекта: installation.md
+  - Руководство пользователя:
+      - Клиент: user-guide/client.md
+      - Мастер: user-guide/master.md
+      - Администратор: user-guide/admin.md
+  - API (Python):
+      - Accounts: api/accounts.md
+      - Services: api/services.md
+      - Masters: api/masters.md
+      - Appointments: api/appointments.md

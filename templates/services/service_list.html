@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Услуги{% endblock %}
+{% block content %}
+<h2 class="mb-3">Услуги салона</h2>
+<div class="row">
+  {% for service in services %}
+    <div class="col-md-4">
+      <div class="card mb-3 shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">{{ service.name }}</h5>
+          <p class="card-text">{{ service.description }}</p>
+          <p class="text-muted">Длительность: {{ service.duration_minutes }} мин</p>
+          <p class="fw-bold">Цена: {{ service.price }} ₽</p>
+        </div>
+      </div>
+    </div>
+  {% empty %}
+    <p>Услуги пока не добавлены.</p>
+  {% endfor %}
+</div>
+{% endblock %}

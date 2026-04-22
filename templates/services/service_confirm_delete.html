@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Удалить услугу{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h2 class="h5">Удалить услугу "{{ service.name }}"?</h2>
+    <p>Это действие нельзя отменить.</p>
+    <form method="post">
+      {% csrf_token %}
+      <button class="btn btn-danger" type="submit">Удалить</button>
+      <a class="btn btn-secondary" href="{% url 'services:admin_list' %}">Отмена</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

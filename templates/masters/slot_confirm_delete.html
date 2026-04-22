@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Удалить слот{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h2 class="h5">Удалить слот {{ slot.start_at|date:"d.m.Y H:i" }}?</h2>
+    <p>Это действие нельзя отменить.</p>
+    <form method="post">
+      {% csrf_token %}
+      <button class="btn btn-danger" type="submit">Удалить</button>
+      <a class="btn btn-secondary" href="{% url 'masters:slot_list' %}">Отмена</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

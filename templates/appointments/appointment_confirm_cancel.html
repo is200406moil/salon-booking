@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Отмена записи{% endblock %}
+{% block content %}
+<div class="card shadow-sm">
+  <div class="card-body">
+    <h2 class="h5">Отменить запись от {{ appointment.slot.start_at|date:"d.m.Y H:i" }}?</h2>
+    <p>Услуга: {{ appointment.service.name }} ({{ appointment.master }})</p>
+    <form method="post">
+      {% csrf_token %}
+      <button class="btn btn-danger" type="submit">Отменить</button>
+      <a class="btn btn-secondary" href="{% url 'appointments:appointment_detail' appointment.pk %}">Назад</a>
+    </form>
+  </div>
+</div>
+{% endblock %}

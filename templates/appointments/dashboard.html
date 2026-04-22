@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block title %}Личный кабинет{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Личный кабинет</h2>
+  <a class="btn btn-primary" href="{% url 'appointments:booking' %}">Записаться</a>
+</div>
+<h4 class="mb-3">Мои записи</h4>
+<div class="list-group">
+  {% for appointment in appointments %}
+    <a class="list-group-item list-group-item-action" href="{% url 'appointments:appointment_detail' appointment.pk %}">
+      {{ appointment.slot.start_at|date:"d.m.Y H:i" }} — {{ appointment.service.name }} ({{ appointment.master }})
+      <span class="badge bg-secondary ms-2">{{ appointment.get_status_display }}</span>
+    </a>
+  {% empty %}
+    <div class="list-group-item">Записей пока нет.</div>
+  {% endfor %}
+</div>
+{% endblock %}

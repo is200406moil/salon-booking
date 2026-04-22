@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Все записи{% endblock %}
+{% block content %}
+<h2 class="mb-3">Все записи</h2>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Клиент</th>
+      <th>Мастер</th>
+      <th>Услуга</th>
+      <th>Дата</th>
+      <th>Статус</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for appointment in appointments %}
+    <tr>
+      <td>{{ appointment.client.get_full_name|default:appointment.client.username }}</td>
+      <td>{{ appointment.master }}</td>
+      <td>{{ appointment.service.name }}</td>
+      <td>{{ appointment.slot.start_at|date:"d.m.Y H:i" }}</td>
+      <td>{{ appointment.get_status_display }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">Записей нет.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

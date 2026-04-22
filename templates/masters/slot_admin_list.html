@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Рабочие слоты{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+  <h2>Рабочие слоты</h2>
+  <a class="btn btn-success" href="{% url 'masters:slot_create' %}">Добавить слот</a>
+</div>
+<table class="table table-striped">
+  <thead>
+    <tr>
+      <th>Мастер</th>
+      <th>Начало</th>
+      <th>Окончание</th>
+      <th>Статус</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for slot in slots %}
+    <tr>
+      <td>{{ slot.master.user.get_full_name|default:slot.master.user.username }}</td>
+      <td>{{ slot.start_at|date:"d.m.Y H:i" }}</td>
+      <td>{{ slot.end_at|date:"d.m.Y H:i" }}</td>
+      <td>{% if slot.is_available %}Свободен{% else %}Занят{% endif %}</td>
+      <td class="text-end">
+        <a class="btn btn-sm btn-outline-primary" href="{% url 'masters:slot_update' slot.pk %}">Редактировать</a>
+        <a class="btn btn-sm btn-outline-danger" href="{% url 'masters:slot_delete' slot.pk %}">Удалить</a>
+      </td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">Слоты отсутствуют.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% endblock %}
