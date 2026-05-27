@@ -1,20 +1,125 @@
-{% extends "base.html" %}
+{% extends base_template %}
 {% block title %}Мастера{% endblock %}
 {% block content %}
-<h2 class="mb-3">Наши мастера</h2>
-<div class="row">
-  {% for master in masters %}
-    <div class="col-md-6">
-      <div class="card mb-3 shadow-sm">
-        <div class="card-body">
-          <h5 class="card-title">{{ master.user.get_full_name|default:master.user.username }}</h5>
-          <p class="card-text">{{ master.bio|default:"Описание отсутствует." }}</p>
-          <p class="text-muted">Услуги: {{ master.services.all|join:", " }}</p>
-        </div>
+<section class="hero">
+  <div class="hero-content">
+    <span class="eyebrow"><i class="ri-team-line"></i> Команда экспертов</span>
+    <h1>Мастера, которые слышат и чувствуют ваш запрос</h1>
+    <p class="hero-text">У каждого специалиста свой стиль, опыт и подход. Подберите мастера, который идеально подходит вам.</p>
+    <div class="hero-actions">
+      <a class="btn btn-primary btn-lg" href="#masters">Выбрать мастера</a>
+      <a class="btn btn-ghost btn-lg" href="{% url 'services:list' %}#services">Посмотреть услуги</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-visual__item">
+      <div class="hero-visual__icon"><i class="ri-award-line"></i></div>
+      <div>
+        <p class="hero-visual__title">Проверенные специалисты</p>
+        <p class="text-muted mb-0">Каждый мастер проходит внутреннюю аттестацию качества.</p>
       </div>
     </div>
-  {% empty %}
-    <p>Мастера пока не добавлены.</p>
-  {% endfor %}
-</div>
+    <div class="hero-visual__item">
+      <div class="hero-visual__icon"><i class="ri-heart-2-line"></i></div>
+      <div>
+        <p class="hero-visual__title">Личное внимание</p>
+        <p class="text-muted mb-0">Фокус на результате и комфорте клиента.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal" id="masters">
+  <div class="section-head">
+    <div>
+      <h2 class="section-title">Наши мастера</h2>
+      <p class="section-subtitle">Выберите мастера, услугу и свободный слот — запись создаётся сразу.</p>
+    </div>
+    {% if selected_service %}
+      <span class="filter-pill">Фильтр: {{ selected_service.name }}</span>
+    {% endif %}
+  </div>
+
+  <div class="master-grid">
+    {% for master in masters %}
+      <article class="master-card" id="master-{{ master.id }}">
+        <div class="master-top">
+          <div>
+            <h3 class="master-name">{{ master.user.get_full_name|default:master.user.username }}</h3>
+            <p class="text-muted mb-0">{{ master.bio|default:"Описание отсутствует." }}</p>
+          </div>
+          <span class="master-chip">Услуг: {{ master.service_count }}</span>
+        </div>
+        <div class="pill-grid">
+          {% for service in master.services.all %}
+            <span class="pill-chip">{{ service.name }}</span>
+          {% empty %}
+            <span class="text-muted">Услуги пока не назначены.</span>
+          {% endfor %}
+        </div>
+        <div class="service-actions">
+          {% if master.service_count > 0 and master.available_slots %}
+            <button class="btn btn-primary btn-sm" type="button" data-bs-toggle="modal" data-bs-target="#book-master-{{ master.id }}">
+              Записаться к мастеру
+            </button>
+          {% else %}
+            <button class="btn btn-outline-primary btn-sm" type="button" disabled>Нет слотов</button>
+          {% endif %}
+        </div>
+      </article>
+      <div class="modal fade" id="book-master-{{ master.id }}" tabindex="-1" aria-labelledby="book-master-label-{{ master.id }}" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title" id="book-master-label-{{ master.id }}">Запись к мастеру «{{ master.user.get_full_name|default:master.user.username }}»</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрыть"></button>
+            </div>
+            <div class="modal-body">
+              <form method="post" class="booking-form" action="{% url 'masters:list' %}#master-{{ master.id }}">
+                {% csrf_token %}
+                <input type="hidden" name="master_id" value="{{ master.id }}">
+                <div>
+                  <p class="text-muted mb-2">Услуга</p>
+                  <div class="pill-grid">
+                    {% for service in master.services.all %}
+                      <label class="pill-option">
+                        <input type="radio" name="service_id" value="{{ service.id }}" required {% if selected_service and selected_service.id == service.id %}checked{% endif %}>
+                        <span class="pill-chip">{{ service.name }}</span>
+                      </label>
+                    {% empty %}
+                      <p class="text-muted mb-2">Услуги не назначены.</p>
+                    {% endfor %}
+                  </div>
+                </div>
+                <div>
+                  <p class="text-muted mb-2">Свободное время</p>
+                  <div class="slot-grid">
+                    {% for slot in master.available_slots|slice:":6" %}
+                      <label class="slot-option">
+                        <input type="radio" name="slot_id" value="{{ slot.id }}" required>
+                        <span class="slot-pill">
+                          <span class="slot-time">{{ slot.start_at|date:"d.m H:i" }}</span>
+                          <span class="slot-master">{{ slot.start_at|date:"d.m" }}</span>
+                        </span>
+                      </label>
+                    {% empty %}
+                      <p class="text-muted mb-2">Свободных слотов пока нет.</p>
+                    {% endfor %}
+                  </div>
+                </div>
+                <textarea name="notes" rows="3" placeholder="Комментарий к записи (необязательно)"></textarea>
+                <button class="btn btn-primary" type="submit">Подтвердить запись</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <div class="empty-state">
+        <h4>Мастера пока не добавлены.</h4>
+        <p class="text-muted">Скоро здесь появятся специалисты.</p>
+      </div>
+    {% endfor %}
+  </div>
+</section>
 {% endblock %}

@@ -4,7 +4,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404, redirect, render
 
-from .forms import AppointmentCreateForm, AppointmentUpdateForm
+from .forms import AppointmentUpdateForm
 from .models import Appointment
 
 
@@ -64,20 +64,8 @@ def booking_step(request):
         200
     """
 
-    if request.method == "POST":
-        form = AppointmentCreateForm(request.POST)
-        if form.is_valid():
-            appointment = form.save(commit=False)
-            appointment.client = request.user
-            appointment.master = appointment.slot.master
-            appointment.save()
-            appointment.slot.is_available = False
-            appointment.slot.save(update_fields=["is_available"])
-            messages.success(request, "Запись создана.")
-            return redirect("appointments:dashboard")
-    else:
-        form = AppointmentCreateForm()
-    return render(request, "appointments/booking_form.html", {"form": form})
+    messages.info(request, "Запись теперь создается прямо в разделе услуг.")
+    return redirect("services:list")
 
 
 @login_required
@@ -135,6 +123,10 @@ def appointment_update(request, pk):
     """
 
     appointment = get_object_or_404(Appointment, pk=pk, client=request.user)
+    if appointment.status != Appointment.Status.PLANNED:
+        messages.warning(request, "Перенос доступен только для запланированных записей.")
+        return redirect("appointments:appointment_detail", pk=appointment.pk)
+
     old_slot = appointment.slot
     if request.method == "POST":
         form = AppointmentUpdateForm(request.POST, instance=appointment)
@@ -181,6 +173,10 @@ def appointment_cancel(request, pk):
     """
 
     appointment = get_object_or_404(Appointment, pk=pk, client=request.user)
+    if appointment.status != Appointment.Status.PLANNED:
+        messages.warning(request, "Эту запись уже нельзя отменить.")
+        return redirect("appointments:appointment_detail", pk=appointment.pk)
+
     if request.method == "POST":
         appointment.status = Appointment.Status.CANCELLED
         appointment.save(update_fields=["status"])

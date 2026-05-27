@@ -1,32 +1,45 @@
-{% extends "base.html" %}
+{% extends "base_dashboard.html" %}
 {% block title %}Расписание мастера{% endblock %}
+{% block topbar_title %}Расписание мастера{% endblock %}
 {% block content %}
-<h2 class="mb-3">Расписание: {{ profile.user.get_full_name|default:profile.user.username }}</h2>
-<div class="row">
-  <div class="col-lg-6">
-    <h4>Записи</h4>
-    <ul class="list-group mb-4">
-      {% for appointment in appointments %}
-        <li class="list-group-item">
-          {{ appointment.slot.start_at|date:"d.m.Y H:i" }} — {{ appointment.client.get_full_name|default:appointment.client.username }} ({{ appointment.service.name }})
-        </li>
-      {% empty %}
-        <li class="list-group-item">Записей пока нет.</li>
-      {% endfor %}
-    </ul>
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow"><i class="ri-calendar-line"></i> Расписание</span>
+      <h2 class="section-title">Расписание: {{ profile.user.get_full_name|default:profile.user.username }}</h2>
+      <p class="section-subtitle">Актуальные записи и свободные слоты.</p>
+    </div>
   </div>
-  <div class="col-lg-6">
-    <h4>Доступные слоты</h4>
-    <ul class="list-group">
-      {% for slot in slots %}
-        <li class="list-group-item">
-          {{ slot.start_at|date:"d.m.Y H:i" }} – {{ slot.end_at|date:"H:i" }}
-          {% if slot.is_available %}<span class="badge bg-success">Свободен</span>{% else %}<span class="badge bg-secondary">Занят</span>{% endif %}
-        </li>
-      {% empty %}
-        <li class="list-group-item">Слоты не настроены.</li>
-      {% endfor %}
-    </ul>
+  <div class="row g-4">
+    <div class="col-lg-6">
+      <div class="panel">
+        <h4 class="mb-3">Записи</h4>
+        <ul class="list-group">
+          {% for appointment in appointments %}
+            <li class="list-group-item">
+              {{ appointment.slot.start_at|date:"d.m.Y H:i" }} — {{ appointment.client.get_full_name|default:appointment.client.username }} ({{ appointment.service.name }})
+            </li>
+          {% empty %}
+            <li class="list-group-item">Записей пока нет.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="col-lg-6">
+      <div class="panel">
+        <h4 class="mb-3">Доступные слоты</h4>
+        <ul class="list-group">
+          {% for slot in slots %}
+            <li class="list-group-item">
+              {{ slot.start_at|date:"d.m.Y H:i" }} – {{ slot.end_at|date:"H:i" }}
+              {% if slot.is_available %}<span class="badge bg-success">Свободен</span>{% else %}<span class="badge bg-secondary">Занят</span>{% endif %}
+            </li>
+          {% empty %}
+            <li class="list-group-item">Слоты не настроены.</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 {% endblock %}

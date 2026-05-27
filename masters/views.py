@@ -1,7 +1,12 @@
 """Views for master profiles and working schedules."""
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+
+from appointments.models import Appointment
+from services.models import Service
 
 from .forms import MasterProfileForm, WorkingSlotForm
 from .models import MasterProfile, WorkingSlot
@@ -51,8 +56,71 @@ def master_list(request):
         200
     """
 
-    masters = MasterProfile.objects.filter(is_active=True)
-    return render(request, "masters/master_list.html", {"masters": masters})
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            login_url = f"{reverse('accounts:login')}?next={request.path}"
+            return redirect(login_url)
+        master_id = request.POST.get("master_id")
+        service_id = request.POST.get("service_id")
+        slot_id = request.POST.get("slot_id")
+        notes = (request.POST.get("notes") or "").strip()
+        master = MasterProfile.objects.filter(pk=master_id, is_active=True).first()
+        service = Service.objects.filter(pk=service_id, is_active=True).first()
+        slot = (
+            WorkingSlot.objects.filter(
+                pk=slot_id,
+                is_available=True,
+                master=master,
+            )
+            .select_related("master")
+            .first()
+        )
+        if not master or not service or not slot or not master.services.filter(pk=service.pk).exists():
+            messages.error(request, "Проверьте выбранного мастера, услугу и свободный слот.")
+            return redirect(reverse("masters:list"))
+        Appointment.objects.create(
+            client=request.user,
+            master=master,
+            service=service,
+            slot=slot,
+            notes=notes,
+        )
+        slot.is_available = False
+        slot.save(update_fields=["is_available"])
+        messages.success(request, "Запись создана.")
+        return redirect(f"{reverse('masters:list')}#master-{master.id}")
+
+    selected_service = None
+    selected_service_id = request.GET.get("service")
+    masters = (
+        MasterProfile.objects.filter(is_active=True)
+        .select_related("user")
+        .prefetch_related("services")
+    )
+    if selected_service_id:
+        selected_service = Service.objects.filter(pk=selected_service_id).first()
+        masters = masters.filter(services__id=selected_service_id).distinct()
+    slots = (
+        WorkingSlot.objects.filter(is_available=True, master__in=masters)
+        .select_related("master__user")
+        .order_by("start_at")
+    )
+    slots_by_master = {master.id: [] for master in masters}
+    for slot in slots:
+        slots_by_master[slot.master_id].append(slot)
+    for master in masters:
+        master.available_slots = slots_by_master.get(master.id, [])
+        master.service_count = master.services.count()
+    base_template = "base_dashboard.html" if request.user.is_authenticated else "base.html"
+    return render(
+        request,
+        "masters/master_list.html",
+        {
+            "masters": masters,
+            "selected_service": selected_service,
+            "base_template": base_template,
+        },
+    )
 
 
 @login_required

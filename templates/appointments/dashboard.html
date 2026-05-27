@@ -1,19 +1,145 @@
-{% extends "base.html" %}
+{% extends "base_dashboard.html" %}
 {% block title %}Личный кабинет{% endblock %}
+{% block topbar_title %}Личный кабинет{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2>Личный кабинет</h2>
-  <a class="btn btn-primary" href="{% url 'appointments:booking' %}">Записаться</a>
-</div>
-<h4 class="mb-3">Мои записи</h4>
-<div class="list-group">
-  {% for appointment in appointments %}
-    <a class="list-group-item list-group-item-action" href="{% url 'appointments:appointment_detail' appointment.pk %}">
-      {{ appointment.slot.start_at|date:"d.m.Y H:i" }} — {{ appointment.service.name }} ({{ appointment.master }})
-      <span class="badge bg-secondary ms-2">{{ appointment.get_status_display }}</span>
-    </a>
-  {% empty %}
-    <div class="list-group-item">Записей пока нет.</div>
-  {% endfor %}
-</div>
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow"><i class="ri-calendar-event-line"></i> Ваши визиты</span>
+      <h2 class="section-title">Мои записи</h2>
+      <p class="section-subtitle">Список актуальных визитов и быстрый доступ к деталям.</p>
+    </div>
+    <a class="btn btn-primary" href="{% url 'services:list' %}">Новая запись</a>
+  </div>
+  <div class="hero-stats hero-stats--compact">
+    <div class="stat-card stat-card--compact">
+      <span class="stat-label">Всего записей</span>
+      <span class="stat-value">{{ appointments|length }}</span>
+      <span class="stat-note">актуальные визиты</span>
+    </div>
+    <div class="stat-card stat-card--compact">
+      <span class="stat-label">Статус</span>
+      <span class="stat-value">Онлайн</span>
+      <span class="stat-note">напоминания включены</span>
+    </div>
+    <div class="stat-card stat-card--compact">
+      <span class="stat-label">Персональный сервис</span>
+      <span class="stat-value">VIP</span>
+      <span class="stat-note">доступны лучшие мастера</span>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow"><i class="ri-information-line"></i> Коротко о сервисе</span>
+      <h2 class="section-title">Что важно знать</h2>
+      <p class="section-subtitle">Самое полезное о записи, мастерах и напоминаниях без перегруза.</p>
+    </div>
+  </div>
+  <div class="feature-grid feature-grid--compact">
+    <div class="feature-card feature-card--compact">
+      <div class="feature-icon"><i class="ri-time-line"></i></div>
+      <h4>Умное расписание</h4>
+      <p class="text-muted">Показываем свободные слоты на ближайшие дни и экономим ваше время.</p>
+    </div>
+    <div class="feature-card feature-card--compact">
+      <div class="feature-icon"><i class="ri-heart-3-line"></i></div>
+      <h4>Комфорт и забота</h4>
+      <p class="text-muted">Подбираем мастера, который идеально подходит вашему запросу.</p>
+    </div>
+    <div class="feature-card feature-card--compact">
+      <div class="feature-icon"><i class="ri-notification-4-line"></i></div>
+      <h4>Напоминания о визите</h4>
+      <p class="text-muted">Ничего не забудете — напомним о записи и подготовке заранее.</p>
+    </div>
+    <div class="feature-card feature-card--compact">
+      <div class="feature-icon"><i class="ri-verified-badge-line"></i></div>
+      <h4>Стабильное качество</h4>
+      <p class="text-muted">Каждая услуга проходит контроль качества и стандартов салона.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="panel">
+    <div class="section-head">
+      <div>
+        <span class="eyebrow"><i class="ri-sparkling-2-line"></i> Запись без лишних шагов</span>
+        <h2 class="section-title">Как всё проходит</h2>
+        <p class="section-subtitle">Короткий маршрут от выбора услуги до подтверждения визита.</p>
+      </div>
+    </div>
+    <div class="feature-grid feature-grid--compact">
+      <div class="feature-card feature-card--compact">
+        <div class="feature-icon"><i class="ri-search-eye-line"></i></div>
+        <h4>Выберите услугу</h4>
+        <p class="text-muted">Сначала смотрите каталог и подбираете подходящую процедуру.</p>
+      </div>
+      <div class="feature-card feature-card--compact">
+        <div class="feature-icon"><i class="ri-user-star-line"></i></div>
+        <h4>Назначьте мастера</h4>
+        <p class="text-muted">Смотрите специалистов рядом с услугой и переходите к выбору.</p>
+      </div>
+      <div class="feature-card feature-card--compact">
+        <div class="feature-icon"><i class="ri-check-line"></i></div>
+        <h4>Подтвердите визит</h4>
+        <p class="text-muted">Получите подтверждение и напоминание о визите.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow"><i class="ri-chat-quote-line"></i> Отзывы и вопросы</span>
+      <h2 class="section-title">Коротко от клиентов</h2>
+      <p class="section-subtitle">Небольшая подсказка, чтобы быстрее сориентироваться.</p>
+    </div>
+  </div>
+  <div class="feature-grid feature-grid--compact">
+    <div class="feature-card feature-card--compact">
+      <h4>“Лучший сервис в городе”</h4>
+      <p class="text-muted">Записалась за пару минут и сразу получила подтверждение.</p>
+      <p class="text-muted mb-0">— Анна</p>
+    </div>
+    <div class="feature-card feature-card--compact">
+      <h4>“Продумано до мелочей”</h4>
+      <p class="text-muted">Красивый интерфейс, понятная запись и внимательное обслуживание.</p>
+      <p class="text-muted mb-0">— Екатерина</p>
+    </div>
+    <div class="feature-card feature-card--compact">
+      <h4>Можно ли перенести запись?</h4>
+      <p class="text-muted">Да, перенос доступен в личном кабинете за пару кликов.</p>
+    </div>
+    <div class="feature-card feature-card--compact">
+      <h4>Как выбрать мастера?</h4>
+      <p class="text-muted">Откройте каталог мастеров и выберите специалиста по услугам.</p>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal">
+  <div class="panel">
+    <div class="panel-header">
+      <div>
+        <h3 class="mb-1">Ближайшие визиты</h3>
+        <p class="text-muted mb-0">Нажмите на запись, чтобы посмотреть детали или перенести.</p>
+      </div>
+      <a class="btn btn-soft btn-sm" href="{% url 'services:list' %}#services">Записаться ещё</a>
+    </div>
+    <div class="list-group">
+      {% for appointment in appointments %}
+        <a class="list-group-item list-group-item-action" href="{% url 'appointments:appointment_detail' appointment.pk %}">
+          <strong>{{ appointment.slot.start_at|date:"d.m.Y H:i" }}</strong> — {{ appointment.service.name }} ({{ appointment.master }})
+          <span class="badge bg-secondary ms-2">{{ appointment.get_status_display }}</span>
+        </a>
+      {% empty %}
+        <div class="list-group-item">Записей пока нет.</div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
 {% endblock %}

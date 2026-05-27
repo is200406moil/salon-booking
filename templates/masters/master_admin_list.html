@@ -1,31 +1,40 @@
-{% extends "base.html" %}
+{% extends "base_dashboard.html" %}
 {% block title %}Управление мастерами{% endblock %}
+{% block topbar_title %}Мастера{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-  <h2>Управление мастерами</h2>
-  <a class="btn btn-success" href="{% url 'masters:create' %}">Добавить мастера</a>
-</div>
-<table class="table table-striped">
-  <thead>
-    <tr>
-      <th>Мастер</th>
-      <th>Статус</th>
-      <th></th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for master in masters %}
-    <tr>
-      <td>{{ master.user.get_full_name|default:master.user.username }}</td>
-      <td>{% if master.is_active %}Активен{% else %}Скрыт{% endif %}</td>
-      <td class="text-end">
-        <a class="btn btn-sm btn-outline-primary" href="{% url 'masters:update' master.pk %}">Редактировать</a>
-        <a class="btn btn-sm btn-outline-danger" href="{% url 'masters:delete' master.pk %}">Удалить</a>
-      </td>
-    </tr>
-    {% empty %}
-    <tr><td colspan="3">Мастера отсутствуют.</td></tr>
-    {% endfor %}
-  </tbody>
-</table>
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow"><i class="ri-team-line"></i> Команда</span>
+      <h2 class="section-title">Управление мастерами</h2>
+      <p class="section-subtitle">Добавляйте специалистов и управляйте доступностью.</p>
+    </div>
+    <a class="btn btn-success" href="{% url 'masters:create' %}">Добавить мастера</a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-striped">
+      <thead>
+        <tr>
+          <th>Мастер</th>
+          <th>Статус</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for master in masters %}
+        <tr>
+          <td>{{ master.user.get_full_name|default:master.user.username }}</td>
+          <td>{% if master.is_active %}Активен{% else %}Скрыт{% endif %}</td>
+          <td class="text-end">
+            <a class="btn btn-sm btn-outline-primary" href="{% url 'masters:update' master.pk %}">Редактировать</a>
+            <a class="btn btn-sm btn-outline-danger" href="{% url 'masters:delete' master.pk %}">Удалить</a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="3">Мастера отсутствуют.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
 {% endblock %}

@@ -1,0 +1,99 @@
+{% load static %}
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Кабинет — Салон красоты{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.3.0/fonts/remixicon.css" rel="stylesheet">
+    <link href="{% static 'css/app.css' %}" rel="stylesheet">
+  </head>
+  <body class="app-body body-dashboard">
+    <div class="dashboard-shell">
+      <aside class="dashboard-sidebar">
+        <div class="sidebar-brand">
+          <span class="brand-mark">SC</span>
+          Салон красоты
+        </div>
+        <div>
+          <p class="sidebar-section">Клиент</p>
+          <nav class="sidebar-nav">
+            <a class="sidebar-link" href="{% url 'appointments:dashboard' %}"><i class="ri-home-5-line"></i> Обзор</a>
+            <a class="sidebar-link" href="{% url 'services:list' %}"><i class="ri-sparkling-line"></i> Услуги</a>
+            <a class="sidebar-link" href="{% url 'masters:list' %}"><i class="ri-team-line"></i> Мастера</a>
+            <a class="sidebar-link" href="{% url 'accounts:profile' %}"><i class="ri-user-3-line"></i> Профиль</a>
+          </nav>
+        </div>
+        {% if user.is_staff %}
+          <div>
+            <p class="sidebar-section">Управление</p>
+            <nav class="sidebar-nav">
+              <a class="sidebar-link" href="{% url 'services:admin_list' %}"><i class="ri-layout-grid-line"></i> Услуги</a>
+              <a class="sidebar-link" href="{% url 'masters:admin_list' %}"><i class="ri-team-fill"></i> Мастера</a>
+              <a class="sidebar-link" href="{% url 'masters:slot_list' %}"><i class="ri-time-line"></i> Слоты</a>
+              <a class="sidebar-link" href="{% url 'appointments:admin_list' %}"><i class="ri-calendar-check-line"></i> Записи</a>
+            </nav>
+          </div>
+        {% endif %}
+        <div class="sidebar-footer">
+          <a class="btn btn-primary btn-sm w-100" href="{% url 'services:list' %}">Новая запись</a>
+        </div>
+      </aside>
+      <div class="dashboard-main">
+        <header class="dashboard-topbar">
+          <p class="topbar-title">{% block topbar_title %}Личный кабинет{% endblock %}</p>
+          <div class="topbar-actions">
+            <a class="btn btn-soft btn-sm" href="{% url 'services:list' %}"><i class="ri-add-line"></i> Записаться</a>
+            <span class="user-chip"><i class="ri-user-3-line"></i> {{ user.get_full_name|default:user.username }}</span>
+            <a class="btn btn-ghost btn-sm" href="{% url 'accounts:logout' %}">Выйти</a>
+          </div>
+        </header>
+        <main class="dashboard-content">
+          {% if messages %}
+            {% for message in messages %}
+              <div class="alert alert-info">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+          {% block content %}{% endblock %}
+        </main>
+      </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+      const applyTextFit = () => {
+        document.querySelectorAll(".js-fit-text").forEach((el) => {
+          el.classList.remove("text-fit--small");
+          const isOverflowing = el.scrollHeight > el.clientHeight || el.scrollWidth > el.clientWidth;
+          if (isOverflowing) {
+            el.classList.add("text-fit--small");
+          }
+        });
+      };
+
+      window.addEventListener("load", applyTextFit);
+      window.addEventListener("resize", () => window.requestAnimationFrame(applyTextFit));
+
+      const revealItems = document.querySelectorAll(".reveal");
+      if ("IntersectionObserver" in window) {
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("is-visible");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.2 }
+        );
+        revealItems.forEach((item) => observer.observe(item));
+      } else {
+        revealItems.forEach((item) => item.classList.add("is-visible"));
+      }
+    </script>
+  </body>
+</html>

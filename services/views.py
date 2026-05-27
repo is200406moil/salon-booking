@@ -1,7 +1,12 @@
 """Views for displaying and managing salon services."""
 
+from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+
+from appointments.models import Appointment
+from masters.models import WorkingSlot
 
 from .forms import ServiceForm
 from .models import Service
@@ -28,8 +33,66 @@ def service_list(request):
         200
     """
 
-    services = Service.objects.filter(is_active=True)
-    return render(request, "services/service_list.html", {"services": services})
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            login_url = f"{reverse('accounts:login')}?next={request.path}"
+            return redirect(login_url)
+        service_id = request.POST.get("service_id")
+        slot_id = request.POST.get("slot_id")
+        notes = (request.POST.get("notes") or "").strip()
+        service = Service.objects.filter(pk=service_id, is_active=True).first()
+        slot = (
+            WorkingSlot.objects.filter(
+                pk=slot_id,
+                is_available=True,
+                master__is_active=True,
+            )
+            .select_related("master")
+            .first()
+        )
+        if not service or not slot or not slot.master.services.filter(pk=service.pk).exists():
+            messages.error(request, "Проверьте выбранную услугу и свободный слот.")
+            return redirect(reverse("services:list"))
+        Appointment.objects.create(
+            client=request.user,
+            master=slot.master,
+            service=service,
+            slot=slot,
+            notes=notes,
+        )
+        slot.is_available = False
+        slot.save(update_fields=["is_available"])
+        messages.success(request, "Запись создана.")
+        return redirect(f"{reverse('services:list')}#service-{service.pk}")
+
+    services = list(
+        Service.objects.filter(is_active=True).prefetch_related("masters__user")
+    )
+    slots = (
+        WorkingSlot.objects.filter(
+            is_available=True,
+            master__is_active=True,
+            master__services__in=services,
+        )
+        .select_related("master__user")
+        .prefetch_related("master__services")
+        .order_by("start_at")
+        .distinct()
+    )
+    slots_by_service = {service.id: [] for service in services}
+    for slot in slots:
+        for service in slot.master.services.all():
+            if service.id in slots_by_service:
+                slots_by_service[service.id].append(slot)
+    for service in services:
+        service.available_slots = slots_by_service.get(service.id, [])
+        service.master_count = service.masters.filter(is_active=True).count()
+    base_template = "base_dashboard.html" if request.user.is_authenticated else "base.html"
+    return render(
+        request,
+        "services/service_list.html",
+        {"services": services, "base_template": base_template},
+    )
 
 
 def _is_admin(user):

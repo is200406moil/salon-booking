@@ -1,11 +1,16 @@
 {% extends "base.html" %}
 {% block title %}Новая запись{% endblock %}
 {% block content %}
-<div class="row">
-  <div class="col-lg-6">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h2 class="h4 mb-3">Записаться на услугу</h2>
+<section class="section">
+  <div class="row g-4">
+    <div class="col-lg-7">
+      <div class="panel">
+        <div class="panel-header">
+          <div>
+            <span class="eyebrow"><i class="ri-calendar-check-line"></i> Онлайн запись</span>
+            <h2 class="mb-0">Записаться на услугу</h2>
+          </div>
+        </div>
         <form method="post">
           {% csrf_token %}
           {{ form.as_p }}
@@ -13,6 +18,12 @@
         </form>
       </div>
     </div>
+    <div class="col-lg-5">
+      <div class="panel">
+        <h4>Что будет дальше</h4>
+        <p class="text-muted">После подтверждения запись появится в личном кабинете, а мы отправим напоминание.</p>
+      </div>
+    </div>
   </div>
-</div>
+</section>
 {% endblock %}

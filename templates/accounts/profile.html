@@ -1,18 +1,40 @@
-{% extends "base.html" %}
+{% extends "base_dashboard.html" %}
 {% block title %}Профиль{% endblock %}
+{% block topbar_title %}Профиль{% endblock %}
 {% block content %}
-<div class="row">
-  <div class="col-lg-6">
-    <div class="card shadow-sm">
-      <div class="card-body">
-        <h2 class="h4 mb-3">Личный профиль</h2>
-        <form method="post">
-          {% csrf_token %}
-          {{ form.as_p }}
-          <button class="btn btn-primary" type="submit">Сохранить</button>
-        </form>
+<section class="section">
+  <div class="section-head">
+    <div>
+      <span class="eyebrow"><i class="ri-user-3-line"></i> Личные данные</span>
+      <h2 class="section-title">Личный профиль</h2>
+      <p class="section-subtitle">Обновите данные для связи — это поможет быстро подтвердить запись.</p>
+    </div>
+  </div>
+  <div class="profile-card profile-overview">
+    <div class="profile-overview__header">
+      <div class="profile-avatar">
+        {{ user.first_name|default:user.username|slice:":1"|upper }}
+      </div>
+      <div class="profile-summary">
+        <p class="profile-summary__label">Профиль клиента</p>
+        <h3>{{ user.get_full_name|default:user.username }}</h3>
+        <p class="profile-summary__text">Здесь собраны основные контакты. Данные используются для записи, уведомлений и подтверждений.</p>
+      </div>
+    </div>
+    <div class="profile-details">
+      <div class="profile-detail">
+        <span class="profile-detail__label">Имя и фамилия</span>
+        <span class="profile-detail__value">{{ user.get_full_name|default:"Не указано" }}</span>
+      </div>
+      <div class="profile-detail">
+        <span class="profile-detail__label">Почта</span>
+        <span class="profile-detail__value">{{ user.email|default:"Не указана" }}</span>
+      </div>
+      <div class="profile-detail">
+        <span class="profile-detail__label">Телефон</span>
+        <span class="profile-detail__value">{{ user.phone|default:"Не указан" }}</span>
       </div>
     </div>
   </div>
-</div>
+</section>
 {% endblock %}
